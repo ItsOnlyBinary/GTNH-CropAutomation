@@ -90,11 +90,37 @@ local function isCropStick(slot)
 end
 
 
-local function dropDownToFirstEmpty()
-    for e=1, inventory_controller.getInventorySize(sides.down) do
-        if inventory_controller.getStackInSlot(sides.down, e) == nil then
-            inventory_controller.dropIntoSlot(sides.down, e)
+local function dropSelectedDown()
+    -- Empty the selected slot into the chest below. Prefer merging into an
+    -- existing compatible stack, then an empty slot. If the chest is full
+    -- (no room to merge and no empty slot) wait over it and retry until the
+    -- unloading can complete.
+    local size = inventory_controller.getInventorySize(sides.down)
+    while robot.count() > 0 do
+        if events.needExit() then
             break
+        end
+        -- Merge into existing stacks (dropIntoSlot skips incompatible slots)
+        for e=1, size do
+            if robot.count() == 0 then
+                break
+            end
+            if inventory_controller.getSlotStackSize(sides.down, e) > 0 then
+                inventory_controller.dropIntoSlot(sides.down, e)
+            end
+        end
+        -- Then place into empty slots
+        for e=1, size do
+            if robot.count() == 0 then
+                break
+            end
+            if inventory_controller.getSlotStackSize(sides.down, e) == 0 then
+                inventory_controller.dropIntoSlot(sides.down, e)
+            end
+        end
+        -- Chest is full; wait and retry
+        if robot.count() > 0 then
+            os.sleep(10)
         end
     end
 end
@@ -118,7 +144,7 @@ function dumpInventory()
         for _, i in ipairs(otherSlots) do
             os.sleep(0)
             robot.select(i)
-            dropDownToFirstEmpty()
+            dropSelectedDown()
         end
 
         -- Return crop sticks to the crop stick chest
@@ -127,7 +153,7 @@ function dumpInventory()
             for _, i in ipairs(stickSlots) do
                 os.sleep(0)
                 robot.select(i)
-                dropDownToFirstEmpty()
+                dropSelectedDown()
             end
         end
     end)
@@ -210,7 +236,7 @@ local function harvestViable()
                 gps.go(config.storagePos)
                 for _, i in ipairs(newSlots) do
                     robot.select(i)
-                    dropDownToFirstEmpty()
+                    dropSelectedDown()
                 end
                 gps.resume()
             end
