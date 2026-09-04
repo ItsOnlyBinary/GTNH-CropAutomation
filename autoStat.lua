@@ -71,7 +71,7 @@ local function checkChild(slot, crop, firstRun)
                 action.placeCropStick()
             end
 
-        elseif config.keepMutations and (not database.existInStorage(crop)) then
+        elseif config.useStorageFarm and config.keepMutations and (not database.existInStorage(crop)) then
             action.transplant(gps.workingSlotToPos(slot), gps.storageSlotToPos(database.nextStorageSlot()))
             action.placeCropStick(2)
             database.addToStorage(crop)

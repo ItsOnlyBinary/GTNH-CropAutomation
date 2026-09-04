@@ -44,8 +44,10 @@ local config = {
     chargerPos = {0, 0},
     -- The coordinate for the crop stick container
     stickContainerPos = {-1, 0},
-    -- The coordinate for the storage chest / trash can
+    -- The coordinate for the storage chest (also the trash can if there is no separate trash chest)
     storagePos = {-2, 0},
+    -- The coordinate for the trash chest (optional)
+    trashPos = {-3, 0},
     -- The coordinate for the farmland that the dislocator is facing
     relayFarmlandPos = {1, 1},
     -- The coordinate for the transvector dislocator

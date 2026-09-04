@@ -51,8 +51,9 @@ local function checkChild(slot, crop)
                     database.addToStorage(crop)
                     action.placeCropStick(2)
 
+                -- Storage Farm disabled, harvest on the working farm at max growth - 1
                 elseif crop.size >= crop.max - 1 then
-                    action.harvest()
+                    action.harvestViable()
                     action.placeCropStick(2)
                 end
 
@@ -62,7 +63,7 @@ local function checkChild(slot, crop)
                 action.placeCropStick()
             end
 
-        elseif config.keepMutations and (not database.existInStorage(crop)) then
+        elseif config.useStorageFarm and config.keepMutations and (not database.existInStorage(crop)) then
             action.transplant(gps.workingSlotToPos(slot), gps.storageSlotToPos(database.nextStorageSlot()))
             action.placeCropStick(2)
             database.addToStorage(crop)
@@ -142,7 +143,9 @@ local function main()
 
     -- First Run
     spreadOnce(true)
-    action.analyzeStorage(true)
+    if config.useStorageFarm then
+        action.analyzeStorage(true)
+    end
     action.restockAll()
 
     -- Loop
