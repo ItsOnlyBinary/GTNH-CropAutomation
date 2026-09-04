@@ -75,15 +75,18 @@ end
 
 
 local function isCropStick(slot)
-    local item = robot.getItem(slot)
-    if item == nil then
+    if robot.count(slot) == 0 then
         return false
     end
-    local stickItem = robot.getItem(robot.inventorySize() + config.stickSlot)
-    if stickItem == nil then
-        return item.name == 'IC2:crop'
+    -- Identify by comparing against the crop stick slot, which is the project's
+    -- reference for what a crop stick is. compareTo checks the selected slot,
+    -- so select the stick slot first. (This OC build has no robot.getItem.)
+    local stickSlot = robot.inventorySize() + config.stickSlot
+    if robot.count(stickSlot) == 0 then
+        return false
     end
-    return item.name == stickItem.name
+    robot.select(stickSlot)
+    return robot.compareTo(slot)
 end
 
 
@@ -198,8 +201,7 @@ local function harvestViable()
         if runtimeTrashPos ~= nil then
             local newSlots = {}
             for i=1, robot.inventorySize() + config.storageStopSlot do
-                local item = robot.getItem(i)
-                if item ~= nil and not isCropStick(i) and before[i] < item.count then
+                if robot.count(i) > before[i] and not isCropStick(i) then
                     newSlots[#newSlots+1] = i
                 end
             end
